@@ -1,4 +1,5 @@
-import React from "react";
+//#region IMPORT #
+import { useState, useRef, useEffect } from "react";
 
 import { Searchbar } from "../components/Searchbar";
 import { Loader } from "../components/Loader";
@@ -9,86 +10,77 @@ import { Modal } from "../components/Modal";
 import { pixabayAPI } from "../api/pixabayAPI";
 
 import styles from "./app.module.css";
+//#endregion #
 
 const PER_PAGE = 12;
 const START_PAGE = 1;
 
-export class App extends React.Component {
-  state = {
-    searchVal: "",
-    imgArr: [],
-    isLoading: false,
-    showModalImg: false,
-    page: START_PAGE,
-    largeImg: ""
-  };
+export const App = () => {
+  const [searchVal, setSearchVal] = useState(() => "");
+  const [imgArr, setImgArr] = useState(() => []);
+  const [isLoading, setIsLoading] = useState(() => false);
+  const [showModalImg, setShowModalImg] = useState(() => false);
+  const [page, setPage] = useState(() => START_PAGE);
+  const [largeImg, setLargeImg] = useState(() => "");
 
-  perPage = PER_PAGE;
-  maxPage = START_PAGE;
+  let perPage = useRef(PER_PAGE);
+  let maxPage = useRef(START_PAGE);
 
-  componentDidUpdate(prevProps, prevState) {
-    const prevVal = prevState.searchVal;
-    const currVal = this.state.searchVal;
-    //this.consoleLogState(this.state, prevState);
-    if (prevVal !== currVal) {
-      this.searchAPI(currVal, this.perPage, START_PAGE);
-    }
-    if ((prevVal === currVal)&&(this.state.page > prevState.page)) {
-      this.searchAPI(currVal, this.state.perPage, this.state.page);
-    }
-  };
-  consoleLogState = (f_currState, f_prevState) =>
-  {
-    Object.keys(f_currState).forEach(key => {
-      console.log(`${key}: curr{${f_currState[key]}} - prev{${f_prevState[key]}}`);
-    });
-  }
-  searchAPI= (currVal, perPage = this.perPage, numbPage = this.state.page) => {
-    this.setState({ isLoading: true });
-      const searchRes = pixabayAPI(currVal, perPage, numbPage);
+//componentDidUpdate
+  useEffect(() => {
+    if (searchVal && page === 1) { 
+      searchAPI(searchVal, perPage, START_PAGE);
+    };
+    if (searchVal && page > 1) {
+      searchAPI(searchVal, perPage, page);
+    };
+  }, [searchVal, page]);
+
+  const searchAPI= (currVal, _perPage = perPage, _numbPage = page) => {
+    setIsLoading(true);
+      const searchRes = pixabayAPI(currVal, _perPage.current, _numbPage);
       searchRes
         .then(value => {
-          console.log(value.maxPic, value.respArr.length);
-          if (numbPage > 1) {
-            this.setState((prevState) => {
-              const newArr = [...prevState.imgArr, ...value.respArr];
-              this.maxPage = Math.floor(value.maxPic/perPage)
-              return { imgArr: newArr};
+          if (_numbPage > 1) {
+            setImgArr((prevState) => {
+              const newArr = [...prevState, ...value.respArr];
+              if (maxPage.current === 1) {
+                maxPage.current = Math.floor(value.maxPic / _perPage.current);
+              }
+              return newArr;
             });
           } else {
-            this.setState({ imgArr: value.respArr });
+            setImgArr(value.respArr);
           }
         })
         .catch(err => console.log(err))
         .finally(() => {
-          this.setState({isLoading: false});
+          setIsLoading(false);
         });
   }
-  getDataExtForm = (data) => { 
-    this.setState({ searchVal: data.searchStr });
+  const getDataExtForm = (data) => { 
+    setSearchVal(data);
   };
-  imgOnClick = (e) => {
+  const imgOnClick = (e) => {
     const imgId = e.target.id;
-    const findImg = this.state.imgArr.find(({ id }) => id === Number(imgId));
-    this.setState({ largeImg: findImg.largeImageURL,  showModalImg: true});
+    const findImg = imgArr.find(({ id }) => id === Number(imgId));
+    setLargeImg(findImg.largeImageURL);
+    setShowModalImg(true);
   };
-  btnOnClick = () => {
-    const nextPage = this.state.page + 1;
-    this.setState({page: nextPage});
+  const btnOnClick = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
   };
-  closeModal = () => {
-    this.setState({ showModalImg: false});
+  const closeModal = () => {
+    setIsLoading(false);
   };
-  render() {
-    const { imgArr, showModalImg, largeImg} = this.state;
-    const imgArrlen = (imgArr.length !== "undefined ") ? imgArr.length : 0;
-  return(
+  const imgArrlen = (imgArr.length !== "undefined ") ? imgArr.length : 0;
+  return (
     <div className={styles.App}>
-      <Searchbar onSubmit={this.getDataExtForm} />
-      {(imgArr.length !== 0) && <ImageGallery imgArr={imgArr} onClick={this.imgOnClick} />}
-      {this.state.isLoading && <Loader />}
-      {(imgArrlen > 0 && this.state.page <= this.maxPage) && <Button text={"Load more"} onClick={this.btnOnClick} />}
-      {showModalImg && <Modal onClose = {this.closeModal}><img src={largeImg} alt="Фото" /></Modal>}
+      <Searchbar onSubmit={getDataExtForm} />
+      {(imgArr.length !== 0) && <ImageGallery imgArr={imgArr} onClick={imgOnClick} />}
+      {isLoading && <Loader />}
+      {(imgArrlen > 0 && page <= maxPage.current) && <Button text={"Load more"} onClick={btnOnClick} />}
+      {showModalImg && <Modal onClose = {closeModal} largeImg = {largeImg}/>}
     </div>);
-  };
 };

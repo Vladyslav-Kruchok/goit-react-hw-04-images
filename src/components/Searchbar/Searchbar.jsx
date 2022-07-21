@@ -1,52 +1,49 @@
-import React from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 import styles from "./Searchbar.module.css";
 
-export class Searchbar extends React.Component {
-    static protoType = {
-        onSubmit: PropTypes.func.isRequired
-    };
-    state = {
-        searchStr: ""
-    };
-
-    exportData = (e) => { 
+export const Searchbar = ({onSubmit}) => {
+    const [searchStr, setSearchStr] = useState("");
+    
+    const exportData = (e) => { 
         e.preventDefault();
-        if (this.state.searchStr.trim() ==='') {
+        if (searchStr.trim() ==='') {
             alert('enter some value')
             return;
         }
-        this.props.onSubmit(this.state);
-        this.resetCurrInput();
+        onSubmit(searchStr);
+        resetCurrInput();
     };    
-    updateCurrState = (e) => {
-        const { name, value } = e.currentTarget;
-        this.setState({ [name]: value });
+    const updateCurrState = (e) => {
+        const { value } = e.currentTarget;
+        setSearchStr(value);
     };
-    resetCurrInput = () => {
-        this.setState({ searchStr: "" });
+    function resetCurrInput(){
+        setSearchStr("");
     };
 
-    render() { 
-        return(
-            <header className={styles.searchbar}>
-                <form className={styles.form} onSubmit = {this.exportData}>
-                    <button type="submit" className={styles.formButton}>
-                        <span className={styles.formButtonLabel}>Search</span>
-                    </button>
+    return(
+        <header className={styles.searchbar}>
+            <form className={styles.form} onSubmit = {exportData}>
+                <button type="submit" className={styles.formButton}>
+                    <span className={styles.formButtonLabel}>Search</span>
+                </button>
 
-                    <input
-                        className={styles.formInput}
-                        type="text"
-                        name="searchStr"
-                        value={this.state.searchStr}
-                        onChange={this.updateCurrState}
-                        autoComplete="off"
-                        autoFocus
-                        placeholder="Search images and photos"
-                    />
-                </form>
-            </header>
-        );
-    };
+                <input
+                    className={styles.formInput}
+                    type="text"
+                    name="searchStr"
+                    value={searchStr}
+                    onChange={updateCurrState}
+                    autoComplete="off"
+                    autoFocus
+                    placeholder="Search images and photos"
+                />
+            </form>
+        </header>
+    );
+};
+
+Searchbar.protoType = {
+    onSubmit: PropTypes.func.isRequired
 };
