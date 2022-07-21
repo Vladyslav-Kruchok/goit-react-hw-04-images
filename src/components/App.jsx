@@ -37,7 +37,7 @@ export const App = () => {
     };
   }, [searchVal, page]);
 
-  const searchAPI= (currVal, _perPage = perPage, _numbPage = page) => {
+  function searchAPI(currVal, _perPage = perPage, _numbPage = page) {
     setIsLoading(true);
       const searchRes = pixabayAPI(currVal, _perPage.current, _numbPage);
       searchRes
