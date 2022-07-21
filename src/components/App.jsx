@@ -26,6 +26,7 @@ export const App = () => {
   let perPage = useRef(PER_PAGE);
   let maxPage = useRef(START_PAGE);
 
+
 //componentDidUpdate
   useEffect(() => {
     if (searchVal && page === 1) { 
