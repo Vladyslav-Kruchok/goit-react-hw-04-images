@@ -9,6 +9,7 @@ export const Modal = ({onClose, largeImg}) => {
     useEffect(() => {
         //componentDidMount
         window.addEventListener("keydown", handleKeyDown);
+
         //componentWillUnmount
         return (() => {
             window.removeEventListener("keydown", handleKeyDown);

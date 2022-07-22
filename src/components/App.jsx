@@ -29,36 +29,29 @@ export const App = () => {
 
 //componentDidUpdate
   useEffect(() => {
-    if (searchVal && page === 1) { 
-      searchAPI(searchVal, perPage, START_PAGE);
-    };
-    if (searchVal && page > 1) {
-      searchAPI(searchVal, perPage, page);
-    };
+    if (!searchVal) return;
+    setIsLoading(true);
+    const searchRes = pixabayAPI(searchVal, perPage.current, page);
+    searchRes
+      .then(value => {
+        if (page > 1) {
+          setImgArr((prevState) => {
+            const newArr = [...prevState, ...value.respArr];
+            if (maxPage.current === 1) {
+              maxPage.current = Math.floor(value.maxPic / perPage.current);
+            }
+            return newArr;
+          });
+        } else {
+          setImgArr(value.respArr);
+        }
+      })
+      .catch(err => console.log(err))
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [searchVal, page]);
 
-  function searchAPI(currVal, _perPage = perPage, _numbPage = page) {
-    setIsLoading(true);
-      const searchRes = pixabayAPI(currVal, _perPage.current, _numbPage);
-      searchRes
-        .then(value => {
-          if (_numbPage > 1) {
-            setImgArr((prevState) => {
-              const newArr = [...prevState, ...value.respArr];
-              if (maxPage.current === 1) {
-                maxPage.current = Math.floor(value.maxPic / _perPage.current);
-              }
-              return newArr;
-            });
-          } else {
-            setImgArr(value.respArr);
-          }
-        })
-        .catch(err => console.log(err))
-        .finally(() => {
-          setIsLoading(false);
-        });
-  }
   const getDataExtForm = (data) => { 
     setSearchVal(data);
   };
@@ -73,7 +66,7 @@ export const App = () => {
     setPage(nextPage);
   };
   const closeModal = () => {
-    setIsLoading(false);
+    setShowModalImg(false);
   };
   const imgArrlen = (imgArr.length !== "undefined ") ? imgArr.length : 0;
   return (
