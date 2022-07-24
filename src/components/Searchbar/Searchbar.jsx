@@ -2,7 +2,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import styles from "./Searchbar.module.css";
 
-export const Searchbar = ({onSubmit}) => {
+export const Searchbar = ({onSubmit, onClick}) => {
     const [searchStr, setSearchStr] = useState("");
     
     const exportData = (e) => { 
@@ -17,6 +17,9 @@ export const Searchbar = ({onSubmit}) => {
     const updateCurrState = (e) => {
         const { value } = e.currentTarget;
         setSearchStr(value);
+    };
+    const onClickSearchbar = () => { 
+        onClick();
     };
     function resetCurrInput(){
         setSearchStr("");
@@ -35,6 +38,7 @@ export const Searchbar = ({onSubmit}) => {
                     name="searchStr"
                     value={searchStr}
                     onChange={updateCurrState}
+                    onClick={onClickSearchbar}
                     autoComplete="off"
                     autoFocus
                     placeholder="Search images and photos"
@@ -45,5 +49,6 @@ export const Searchbar = ({onSubmit}) => {
 };
 
 Searchbar.protoType = {
-    onSubmit: PropTypes.func.isRequired
+    onSubmit: PropTypes.func.isRequired,
+    onClick: PropTypes.func.isRequired
 };

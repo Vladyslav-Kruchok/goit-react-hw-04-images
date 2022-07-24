@@ -68,10 +68,13 @@ export const App = () => {
   const closeModal = () => {
     setShowModalImg(false);
   };
+  const clearImgArr = () => {
+    setImgArr([]);
+  };
   const imgArrlen = (imgArr.length !== "undefined ") ? imgArr.length : 0;
   return (
     <div className={styles.App}>
-      <Searchbar onSubmit={getDataExtForm} />
+      <Searchbar onSubmit={getDataExtForm} onClick={clearImgArr} />
       {(imgArr.length !== 0) && <ImageGallery imgArr={imgArr} onClick={imgOnClick} />}
       {isLoading && <Loader />}
       {(imgArrlen > 0 && page <= maxPage.current) && <Button text={"Load more"} onClick={btnOnClick} />}
