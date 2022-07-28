@@ -12,7 +12,7 @@ import { pixabayAPI } from "../api/pixabayAPI";
 import styles from "./app.module.css";
 //#endregion #
 
-const PER_PAGE = 12;
+const PER_PAGE = 3;
 const START_PAGE = 1;
 
 export const App = () => {
@@ -37,13 +37,11 @@ export const App = () => {
         if (page > 1) {
           setImgArr((prevState) => {
             const newArr = [...prevState, ...value.respArr];
-            if (maxPage.current === 1) {
-              maxPage.current = Math.floor(value.maxPic / perPage.current);
-            }
             return newArr;
           });
         } else {
           setImgArr(value.respArr);
+          maxPage.current = Math.floor(value.maxPic / perPage.current);
         }
       })
       .catch(err => console.log(err))
@@ -68,13 +66,16 @@ export const App = () => {
   const closeModal = () => {
     setShowModalImg(false);
   };
-  const clearImgArr = () => {
+  const clear = () => {
     setImgArr([]);
+    setSearchVal("");
+    setPage(START_PAGE);
+    maxPage.current = START_PAGE;
   };
   const imgArrlen = (imgArr.length !== "undefined ") ? imgArr.length : 0;
   return (
     <div className={styles.App}>
-      <Searchbar onSubmit={getDataExtForm} onClick={clearImgArr} />
+      <Searchbar onSubmit={getDataExtForm} onClick={clear} />
       {(imgArr.length !== 0) && <ImageGallery imgArr={imgArr} onClick={imgOnClick} />}
       {isLoading && <Loader />}
       {(imgArrlen > 0 && page <= maxPage.current) && <Button text={"Load more"} onClick={btnOnClick} />}
