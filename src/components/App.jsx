@@ -12,7 +12,7 @@ import { pixabayAPI } from "../api/pixabayAPI";
 import styles from "./app.module.css";
 //#endregion #
 
-const PER_PAGE = 3;
+const PER_PAGE = 12;
 const START_PAGE = 1;
 
 export const App = () => {
@@ -65,6 +65,7 @@ export const App = () => {
   };
   const closeModal = () => {
     setShowModalImg(false);
+    setLargeImg("");
   };
   const clear = () => {
     setImgArr([]);
